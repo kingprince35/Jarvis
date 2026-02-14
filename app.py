@@ -1,42 +1,53 @@
 import os
-import pyautogui
 import webbrowser
-import pyttsx3 as pt
-import time
+import pyautogui
 
-engine = pt.init("sapi5")
-voices = engine.getProperty("voices")
-engine.setProperty("voice" , voices[0].id)
-engine.setProperty("rate" , 200)
+from speech import speak
 
-def speak(audio):
-    engine.say(audio)
-    engine.runAndWait()
+dictapp = {
+    "command prompt": "cmd",
+    "paint": "paint",
+    "excel": "excel",
+    "chrome": "chrome",
+    "vscode": "code",
+    "powerpoint": "powerpnt",
+    "notepad": "notepad",
+    "calculator": "calc",
+    "file explorer": "explorer",
+}
 
-dictapp = {"command prompt":"cmd" , "Paint" : "paint" , "excel":"excel" , "chrome" : "chrome" , "vscode" : "code" , "powerpoint" : "powerpnt"}
 
 def openappweb(query):
-    speak("Open the app")
+    """Open an application or website based on voice command."""
     if ".com" in query or ".co.in" in query or ".org" in query:
-        query = query.replace("open","")
-        query = query.replace("jarvis","")
-        query = query.replace("launch","")
-        query = query.replace(" ","")
+        query = query.replace("open", "").replace("jarvis", "").replace("launch", "").strip()
+        query = query.replace(" ", "")
+        speak(f"Opening {query}")
         webbrowser.open(f"https://www.{query}")
     else:
-        keys = list(dictapp.keys())
-        for app in keys:
-            if app in query:
-                os.system(f"Start {dictapp[app]}")
+        for app_name, exe_name in dictapp.items():
+            if app_name in query:
+                speak(f"Opening {app_name}")
+                os.system(f"start {exe_name}")
+                return
+        speak("Sorry, I don't know that application.")
+
 
 def closeappweb(query):
-    speak("Closingg")
+    """Close an application or browser tab."""
     if "one tab" in query or "1 tab" in query:
-        pyautogui.hotkey("ctrl","w")
+        speak("Closing tab")
+        pyautogui.hotkey("ctrl", "w")
     elif "switch tab" in query:
-        pyautogui.hotkey("ctrl","tab")
+        speak("Switching tab")
+        pyautogui.hotkey("ctrl", "tab")
+    elif "window" in query:
+        speak("Closing window")
+        pyautogui.hotkey("alt", "F4")
     else:
-        keys = list(dictapp.keys())
-        for app in keys:
-            if app in query:
-                os.system(f"taskkill /f /im {dictapp[app]}.exe")
+        for app_name, exe_name in dictapp.items():
+            if app_name in query:
+                speak(f"Closing {app_name}")
+                os.system(f"taskkill /f /im {exe_name}.exe")
+                return
+        speak("Sorry, I don't know which app to close.")
